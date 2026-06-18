@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav>
+<span class="nav-logo">
+    ZEA
+    <span class="disponibilidad-dot" id="dot-disponibilidad"></span>
+    <span class="disponibilidad-texto" id="texto-disponibilidad"></span>
+<div class="disponibilidad-tooltip" id="tooltip-disponibilidad">
+    My hours &nbsp;<span>3:00 PM – 9:00 PM</span> CST<br>
+    Your time &nbsp;<span id="tooltip-hora-visitante"></span>
+</div>
+</span>
+</span>
+    <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#Services">Services</a></li>
+        <li><a href="#contacto">Contact</a></li>
+    </ul>
+</nav>
+<section id="hero">
+    <canvas id="matrix"></canvas>
+    
+<div class="hero-contenido">
+    <h1>ZEA</h1>
+    <p>Luau Developer · Scripter & Animator</p>
+    <p class="hero-bio" id="hero-bio"></p>
+    <a href="#contacto" class="btn" id="btn-hero">Work with me</a>
+</div>
+
+    <div class="hero-slider">
+        <div class="hero-slider" data-direccion="der"></div>
+        <div class="slide activo">
+            <video src="videos/Kocmoc.mp4" autoplay muted loop preload="auto"></video>
+        </div>
+        <div class="slide">
+            <video src="videos/Homero.mp4" autoplay muted loop preload="none"></video>
+        </div>
+        <div class="slide">
+            <video src="videos/Roca.mp4" autoplay muted loop preload="none"></video>
+        </div>
+        <div class="slide">
+            <video src="videos/Ultrakill.mp4" autoplay muted loop preload="none"></video>
+        </div>
+        <div class="slider-dots">
+    <span class="dot activo"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
+</div>
+        <button class="flecha flecha-izq">&#8592;</button>
+        <button class="flecha flecha-der">&#8594;</button>
+    </div>
+
+</section>
+
+<section id="Services">
+    <h2>Services</h2>
+    <div class="cards">
+
+        <div class="card">
+            <span class="card-icon">⚡</span>
+            <h3>Scripting</h3>
+            <p>Expert in Luau scripting for Roblox, creating engaging and interactive game experiences</p>
+            <span class="card-precio">Desde $8–$30 USD</span>
+            <a href="trabajos.html" class="card-btn">Ver trabajos →</a>
+        </div>
+
+        <div class="card">
+            <span class="card-icon">🎬</span>
+            <h3>Animation</h3>
+            <p>Skilled animator specializing in character animations</p>
+            <span class="card-precio">From $5–$20 USD</span>
+            <a href="trabajos2.html" class="card-btn">Ver trabajos →</a>
+        </div>
+
+    </div>
+</section>
+<section id="como-trabajo">
+    <h2>How I work</h2>
+    <p class="subtitulo-seccion">Simple, transparent and professional</p>
+
+    <div class="proceso-grid">
+        <div class="proceso-paso">
+            <span class="paso-num">01</span>
+            <h3>Contact</h3>
+            <p>Tell me about your project via Discord. We'll discuss details, scope and price before starting anything.</p>
+        </div>
+        <div class="proceso-paso">
+            <span class="paso-num">02</span>
+            <h3>Payment</h3>
+            <p>Once we agree, you pay 100% upfront via PayPal in USD. No surprises.</p>
+        </div>
+        <div class="proceso-paso">
+            <span class="paso-num">03</span>
+            <h3>Delivery</h3>
+            <p>I deliver in 3–5 business days depending on complexity. You'll receive updates along the way.</p>
+        </div>
+        <div class="proceso-paso">
+            <span class="paso-num">04</span>
+            <h3>Revisions</h3>
+            <p>Not happy with something? No problem. You get up to 2 revision rounds included.</p>
+        </div>
+    </div>
+
+    <div class="faq">
+        <h3>FAQ</h3>
+        <div class="faq-item">
+            <button class="faq-pregunta">Do you work with any Roblox game? <span>+</span></button>
+            <p class="faq-respuesta">Yes, as long as it's within Roblox Studio. I don't work on other engines for now.</p>
+        </div>
+        <div class="faq-item">
+            <button class="faq-pregunta">What if I need something more complex? <span>+</span></button>
+            <p class="faq-respuesta">We discuss it before starting. More complex projects may have a higher price and longer delivery time, always agreed upfront.</p>
+        </div>
+        <div class="faq-item">
+            <button class="faq-pregunta">Do you offer refunds? <span>+</span></button>
+            <p class="faq-respuesta">Since payment is upfront and work starts immediately, refunds are not available. That's why we align everything before I start.</p>
+        </div>
+        <div class="faq-item">
+            <button class="faq-pregunta">Can I see your previous work? <span>+</span></button>
+            <p class="faq-respuesta">Yes! Check the Scripts and Animation sections above to see real projects I've worked on.</p>
+        </div>
+    </div>
+</section>
+
+    <section id="contacto">
+    <h2>Contact</h2>
+    <p>Do you have a project? Let's talk!</p>
+<a href="https://discord.com/users/1432891193305337866" class="btn" target="_blank">
+    Contact me on discord
+    <span class="btn-top"></span>
+    <span class="btn-bottom"></span>
+</a>
+</section>
+
+
+<footer>
+    <canvas id="particulas-footer"></canvas>
+    <p>© 2026 ZEA · Scripter · Animator</p>
+</footer>
+
+    <script src="script.js"></script>
+    
+</body>
+</html>
