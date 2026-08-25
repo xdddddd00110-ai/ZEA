@@ -1,18 +1,18 @@
 const canvas = document.getElementById('matrix-trabajos');
 const ctx = canvas.getContext('2d');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const fontSize = 14;
 const rows = Math.floor(canvas.height / fontSize);
-
-// Lado izquierdo - cae hacia la derecha
 const dropsIzq = Array(rows).fill(1);
-// Lado derecho - cae hacia la izquierda
 const dropsDer = Array(rows).fill(canvas.width / fontSize);
 
 const chars = '01{}[]();=></>function const let var';
+let lastFrame = 0;
+const matrixFps = prefersReducedMotion ? 200 : 80;
 
 function draw() {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
@@ -39,7 +39,20 @@ function draw() {
     });
 }
 
-setInterval(draw, 50);
+function animarMatrix(timestamp) {
+    if (timestamp - lastFrame < matrixFps) {
+        requestAnimationFrame(animarMatrix);
+        return;
+    }
+
+    lastFrame = timestamp;
+    draw();
+    requestAnimationFrame(animarMatrix);
+}
+
+if (!prefersReducedMotion) {
+    requestAnimationFrame(animarMatrix);
+}
 const lineaEl = document.querySelector('.timeline-linea');
 const containerEl = document.querySelector('.timeline-container');
 
@@ -55,7 +68,7 @@ window.addEventListener('resize', ajustarLinea);
 
 
 function fadeVolumen(video, desde, hasta, duracion, callback) {
-    const pasos = 20;
+    const pasos = 12;
     const intervalo = duracion / pasos;
     const incremento = (hasta - desde) / pasos;
     let volumenActual = desde;
@@ -72,7 +85,7 @@ function fadeVolumen(video, desde, hasta, duracion, callback) {
     }, intervalo);
 
     return fade;
-}   
+}
 const videos = document.querySelectorAll('.trabajo-card video');
 
 videos.forEach(video => {
@@ -120,21 +133,11 @@ videos.forEach(video => {
 document.querySelectorAll('.video-wrapper').forEach(wrapper => {
     const video = wrapper.querySelector('video');
     const barra = wrapper.querySelector('.video-barra');
-
-    video.addEventListener('timeupdate', () => {
-        const porcentaje = (video.currentTime / video.duration) * 100;
-        barra.style.width = porcentaje + '%';
-    });
-});
-
-document.querySelectorAll('.video-wrapper').forEach(wrapper => {
-    const video = wrapper.querySelector('video');
-    const barra = wrapper.querySelector('.video-barra');
     const progreso = wrapper.querySelector('.video-progreso');
 
     video.addEventListener('timeupdate', () => {
         const porcentaje = (video.currentTime / video.duration) * 100;
-        barra.style.width = porcentaje + '%';
+        barra.style.width = `${porcentaje}%`;
     });
 
     progreso.addEventListener('click', (e) => {
@@ -146,43 +149,16 @@ document.querySelectorAll('.video-wrapper').forEach(wrapper => {
 });
 
 
-
-document.querySelectorAll('.video-wrapper').forEach(wrapper => {
-    const video = wrapper.querySelector('video');
-    const ambient = document.createElement('canvas');
-    ambient.classList.add('ambient-canvas');
-    wrapper.appendChild(ambient);
-    const actx = ambient.getContext('2d');
-
-    function dibujarAmbient() {
-        if (!video.paused) {
-            ambient.width = video.videoWidth || 400;
-            ambient.height = video.videoHeight || 300;
-            actx.drawImage(video, 0, 0, ambient.width, ambient.height);
-        }
-        requestAnimationFrame(dibujarAmbient);
-    }
-
-video.addEventListener('play', () => {
-    setInterval(() => {
-        if (!video.paused) {
-            ambient.width = video.videoWidth || 300;
-            ambient.height = video.videoHeight || 200;
-            actx.drawImage(video, 0, 0, ambient.width, ambient.height);
-        }
-    }, 100); // actualiza cada 100ms en lugar de cada frame
-});
-});
-
-
 function animarTexto(selector) {
     const el = document.querySelector(selector);
+    if (!el) return;
+
     const texto = el.innerText;
     el.innerHTML = '';
     texto.split('').forEach((letra, i) => {
         const span = document.createElement('span');
         span.textContent = letra === ' ' ? '\u00A0' : letra;
-        span.style.animationDelay = `${i * 0.05}s`;
+        span.style.animationDelay = `${i * 0.03}s`;
         el.appendChild(span);
     });
 }
@@ -196,9 +172,6 @@ document.querySelectorAll('.trabajo-card').forEach(card => {
     const video = card.querySelector('video');
     const textoH3 = h3.textContent.trim();
     const textoP = p.textContent.trim();
-
-    h3.textContent = '';
-    p.textContent = '';
 
     let intervalH3 = null;
     let intervalP = null;
@@ -227,7 +200,7 @@ document.querySelectorAll('.trabajo-card').forEach(card => {
             h3.textContent = textoH3.slice(0, i + 1);
             i++;
             if (i >= textoH3.length) clearInterval(intervalH3);
-        }, 40);
+        }, 32);
 
         timeoutP = setTimeout(() => {
             if (!dentroDelVideo) return;
@@ -237,8 +210,8 @@ document.querySelectorAll('.trabajo-card').forEach(card => {
                 p.textContent = textoP.slice(0, j + 1);
                 j++;
                 if (j >= textoP.length) clearInterval(intervalP);
-            }, 20);
-        }, textoH3.length * 40);
+            }, 16);
+        }, textoH3.length * 32);
     }
 
     video.addEventListener('mouseenter', () => {

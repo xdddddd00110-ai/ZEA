@@ -1,5 +1,6 @@
 const canvas = document.getElementById('matrix');
 const ctx = canvas.getContext('2d');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -8,6 +9,9 @@ const columns = Math.floor(canvas.width / fontSize);
 const drops = Array(columns).fill(1);
 
 const chars = '01{}[]();=></>function const let var';
+
+let lastMatrixFrame = 0;
+const matrixFps = prefersReducedMotion ? 200 : 80;
 
 function draw() {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
@@ -26,7 +30,20 @@ function draw() {
     });
 }
 
-setInterval(draw, 50);
+function animarMatrix(timestamp) {
+    if (timestamp - lastMatrixFrame < matrixFps) {
+        requestAnimationFrame(animarMatrix);
+        return;
+    }
+
+    lastMatrixFrame = timestamp;
+    draw();
+    requestAnimationFrame(animarMatrix);
+}
+
+if (!prefersReducedMotion) {
+    requestAnimationFrame(animarMatrix);
+}
 
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.dot');
@@ -36,24 +53,28 @@ setInterval(draw, 50);
 const videoSlides = document.querySelectorAll('.slide video');
 
 videoSlides.forEach((v, i) => {
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = i === 0 ? 'metadata' : 'none';
     if (i !== 0) {
         v.pause();
-        v.preload = 'none';
     }
 });
 
 function precargarSiguiente(index) {
     const siguiente = (index + 1) % videoSlides.length;
-    if (videoSlides[siguiente].preload === 'none') {
-        videoSlides[siguiente].preload = 'auto';
-        videoSlides[siguiente].load();
+    const video = videoSlides[siguiente];
+
+    if (video.preload === 'none') {
+        video.preload = 'metadata';
+        video.load();
     }
 }
 
 let cambiando = false;
 
 function cambiarSlide(siguiente) {
-    if (cambiando) return; // bloquea si ya está cambiando
+    if (cambiando) return;
     cambiando = true;
 
     const anterior = actual;
@@ -67,19 +88,19 @@ function cambiarSlide(siguiente) {
     dots[actual].classList.add('activo');
 
     const videoActual = videoSlides[actual];
-    if (videoActual.readyState >= 3) {
-        videoActual.play();
+    if (videoActual.readyState >= 2) {
+        videoActual.play().catch(() => {});
     } else {
-        videoActual.preload = 'auto';
+        videoActual.preload = 'metadata';
         videoActual.load();
-        videoActual.addEventListener('canplay', () => videoActual.play(), { once: true });
+        videoActual.addEventListener('canplay', () => videoActual.play().catch(() => {}), { once: true });
     }
 
     setTimeout(() => {
         slides[anterior].classList.remove('saliendo');
         videoSlides[anterior].pause();
         precargarSiguiente(actual);
-        cambiando = false; // desbloquea al terminar
+        cambiando = false;
     }, 800);
 }
 let timer = setInterval(() => {
@@ -175,67 +196,52 @@ const ctxF = canvasF.getContext('2d');
 canvasF.width = canvasF.offsetWidth;
 canvasF.height = canvasF.offsetHeight;
 
-const particulas = Array.from({ length: 40 }, () => ({
+const particulas = Array.from({ length: 24 }, () => ({
     x: Math.random() * canvasF.width,
     y: Math.random() * canvasF.height,
-    r: Math.random() * 15 + 5, // más grandes
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: -(Math.random() * 0.4 + 0.1),
-    alpha: Math.random() * 0.5 + 0.1,
+    r: Math.random() * 10 + 4,
+    vx: (Math.random() - 0.5) * 0.25,
+    vy: -(Math.random() * 0.35 + 0.08),
+    alpha: Math.random() * 0.4 + 0.1,
 }));
 
 function dibujarParticulas() {
     ctxF.clearRect(0, 0, canvasF.width, canvasF.height);
 
-    // Líneas entre partículas cercanas
     for (let i = 0; i < particulas.length; i++) {
-        for (let j = i + 1; j < particulas.length; j++) {
-            const dx = particulas[i].x - particulas[j].x;
-            const dy = particulas[i].y - particulas[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 120) {
-                ctxF.beginPath();
-                ctxF.strokeStyle = `rgba(109, 214, 209, ${1 - dist / 120})`;
-                ctxF.lineWidth = 0.5;
-                ctxF.moveTo(particulas[i].x, particulas[i].y);
-                ctxF.lineTo(particulas[j].x, particulas[j].y);
-                ctxF.stroke();
-            }
+        const p = particulas[i];
+        ctxF.beginPath();
+        ctxF.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctxF.strokeStyle = `rgba(109, 214, 209, ${p.alpha})`;
+        ctxF.lineWidth = 1;
+        ctxF.shadowBlur = 8;
+        ctxF.shadowColor = 'rgba(109, 214, 209, 0.35)';
+        ctxF.stroke();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.y + p.r < 0) {
+            p.y = canvasF.height + p.r;
+            p.x = Math.random() * canvasF.width;
         }
+        if (p.x < 0 || p.x > canvasF.width) p.vx *= -1;
     }
-
-    // Burbujas / partículas
-particulas.forEach(p => {
-    ctxF.beginPath();
-    ctxF.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctxF.strokeStyle = `rgba(109, 214, 209, ${p.alpha})`;
-    ctxF.lineWidth = 1;
-    ctxF.shadowBlur = 10;
-    ctxF.shadowColor = 'rgba(109, 214, 209, 0.4)';
-    ctxF.stroke(); // solo borde, sin relleno
-
-    p.x += p.vx;
-    p.y += p.vy;
-
-    if (p.y + p.r < 0) {
-        p.y = canvasF.height + p.r;
-        p.x = Math.random() * canvasF.width;
-    }
-    if (p.x < 0 || p.x > canvasF.width) p.vx *= -1;
-});
 
     requestAnimationFrame(dibujarParticulas);
 }
 
-dibujarParticulas();
+if (!prefersReducedMotion) {
+    dibujarParticulas();
+}
 
 window.addEventListener('resize', () => {
     canvasF.width = canvasF.offsetWidth;
     canvasF.height = canvasF.offsetHeight;
-});
+}, { passive: true });
 
 
-const bio = "I create experiences in Roblox Studio, from complex game systems programmed in Luau to fluid character animations created in Blender after approximately two years of development. I don't just write code or move skeletons; I'm obsessed with the details that make a game feel alive.";
+const bio = "I create experiences in Roblox Studio, from complex systems built with Luau to fluid animations made in Blender. With around one year of experience, I focus on the small details that make gameplay feel responsive, and polished.";
 
 const bioEl = document.getElementById('hero-bio');
 const btnHero = document.getElementById('btn-hero');
